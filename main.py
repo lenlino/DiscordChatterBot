@@ -9,7 +9,7 @@ from discord import Option
 
 import languages
 
-token = "OTc1NzA2ODczMzcyMjI5NjM0.Gkdfyz.Z09hnv1GifCZGty3qGTMF_8WN49dJ93V8wbZSE"
+token = "token"
 can_use_learning_command = [349381131197480962,]
 
 # Create a new chat bot named Charlie
