@@ -52,13 +52,13 @@ async def on_message(message):
         for user_id in match:
             user = await discordbot.fetch_user(user_id)
             user_name = f'、{user.name}'
-            response = re.sub(rf'<@!?{user_id}>', user_name, response)
+            response = re.sub(rf'<@!?{user_id}>', user_name, str(response))
         pattern = r'<@&(\d+)>'
         match = re.findall(pattern, str(response))
         for role_id in match:
             role = message.guild.get_role(int(role_id))
             role_name = f'、{role.name}'
-            response = re.sub(f'<@&{role_id}>', role_name, response)
+            response = re.sub(f'<@&{role_id}>', role_name, str(response))
 
         if response is not None:
             await message.reply(response)
@@ -70,7 +70,7 @@ async def on_message(message):
 @discordbot.slash_command()
 async def learning(ctx,
                    target: Option(discord.Member, "メンバー", required=False)):
-    if can_use_learning_command not in ctx.author.id:
+    if ctx.author.id not in can_use_learning_command:
         await ctx.respond("許可されたユーザーのみが使用できます")
         return
     await ctx.respond("完了しました")
