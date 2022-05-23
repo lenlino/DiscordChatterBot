@@ -1,4 +1,5 @@
 import asyncio
+import random
 import re
 
 import discord
@@ -37,10 +38,12 @@ async def on_message(message):
 
     typing = True
     try:
-        response = chatbot.get_response(message.content)
+
         # 待機
         async with message.channel.typing():
             await asyncio.sleep(8)
+        typing = False
+        response = chatbot.get_response(message.content)
         print('{}: {}'.format(chatbot.name, response))
 
         # メンション削除
