@@ -48,13 +48,13 @@ async def on_message(message):
 
         # メンション削除
         pattern = r'<@!?(\d+)>'
-        match = re.findall(pattern, response)
+        match = re.findall(pattern, str(response))
         for user_id in match:
             user = await discordbot.fetch_user(user_id)
             user_name = f'、{user.name}'
             response = re.sub(rf'<@!?{user_id}>', user_name, response)
         pattern = r'<@&(\d+)>'
-        match = re.findall(pattern, response)
+        match = re.findall(pattern, str(response))
         for role_id in match:
             role = message.guild.get_role(int(role_id))
             role_name = f'、{role.name}'
