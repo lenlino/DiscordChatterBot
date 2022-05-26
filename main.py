@@ -41,8 +41,9 @@ async def on_message(message):
 
         # 待機
         async with message.channel.typing():
+            typing = False
             await asyncio.sleep(8)
-        typing = False
+
         response = chatbot.get_response(message.content)
         print('{}: {}'.format(chatbot.name, response))
 
