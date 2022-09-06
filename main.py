@@ -1,15 +1,17 @@
 import asyncio
 import random
 import re
+import string
 
 import discord
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
 from discord import Option
+from discord.types.channel import ChannelType
 
 import languages
 
-token = "token"
+token = "OTc1NzA2ODczMzcyMjI5NjM0.G-070w.pCQwJN_bkN06-h3yWhcafHYaQ7HEG_BWOleHKU"
 can_use_learning_command = [349381131197480962,]
 
 # Create a new chat bot named Charlie
@@ -28,23 +30,10 @@ list_trainer = ListTrainer(chatbot)
 
 # Get a response to the input text 'I would like to book a flight.'
 
-@discordbot.event
-async def on_message(message):
-    global typing
-    if typing:
-        return
-    if message.author == discordbot.user:
-        return
-
-    typing = True
+async def get_respond(message, author, guild=None):
     try:
-
-        # 待機
-        async with message.channel.typing():
-            typing = False
-            await asyncio.sleep(8)
-
-        response = chatbot.get_response(message.content)
+        response = chatbot.get_response(message)
+        print('{}: {}'.format(author.name, message))
         print('{}: {}'.format(chatbot.name, response))
 
         # メンション削除
@@ -56,16 +45,46 @@ async def on_message(message):
             response = re.sub(rf'<@!?{user_id}>', user_name, str(response))
         pattern = r'<@&(\d+)>'
         match = re.findall(pattern, str(response))
-        for role_id in match:
-            role = message.guild.get_role(int(role_id))
+        for role_id in match and guild is not None:
+            role = guild.get_role(int(role_id))
             role_name = f'、{role.name}'
             response = re.sub(f'<@&{role_id}>', role_name, str(response))
 
         if response is not None:
-            await message.reply(response)
+            return response
+        return ""
+
     except(KeyboardInterrupt, EOFError, SystemExit, discord.errors.HTTPException):
-        print("返答不可")
+        return "エラーが発生しました"
+
+@discordbot.event
+async def on_message(message):
+    global typing
+    if typing:
+        return
+    if message.author == discordbot.user:
+        return
+    if message.channel.type != discord.ChannelType.private:
+        return
+
+    typing = True
+    response = await get_respond(message.content, message.author, message.guild)
+    async with message.channel.typing():
+        typing = False
+        await asyncio.sleep(2)
+
+
+    await message.reply(response)
+
     typing = False
+
+@discordbot.slash_command()
+async def talk(ctx, target: Option(str, "メッセージ", required=True)):
+    message = await ctx.respond('考え中...')
+    response = await get_respond(target, ctx.author, ctx.guild)
+    await message.edit_original_message(content=target)
+    await message.channel.send(content=response)
+
 
 
 @discordbot.slash_command()
